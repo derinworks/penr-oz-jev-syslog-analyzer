@@ -1,0 +1,65 @@
+[build-system]
+requires = ["hatchling>=1.26"]
+build-backend = "hatchling.build"
+
+[project]
+name = "penr-oz-jev-syslog-analyzer"
+version = "0.1.0"
+description = "An asyncio daemon that tails journald or syslog and asks Jev which subsystem an event belongs to, how severe it is, and whether it is noise."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.11"
+authors = [{ name = "Derin Works LLC" }]
+classifiers = [
+  "Development Status :: 2 - Pre-Alpha",
+  "Intended Audience :: System Administrators",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: System :: Logging",
+]
+
+[project.scripts]
+syslog-triage = "syslog_triage.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/derinworks/penr-oz-jev-syslog-analyzer"
+Issues = "https://github.com/derinworks/penr-oz-jev-syslog-analyzer/issues"
+
+[dependency-groups]
+dev = [
+  "mypy>=1.11",
+  "pre-commit>=3.7",
+  "pytest>=8.0",
+  "ruff>=0.5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/syslog_triage"]
+
+[tool.ruff]
+line-length = 100
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "UP",  # pyupgrade
+  "B",   # flake8-bugbear
+  "SIM", # flake8-simplify
+]
+
+[tool.mypy]
+python_version = "3.11"
+files = ["src", "tests"]
+strict = true
+warn_unreachable = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
