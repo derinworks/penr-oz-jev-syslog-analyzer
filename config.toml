@@ -1,0 +1,58 @@
+# Reference configuration for syslog-triage.
+#
+# Every key below is optional and shows its built-in default, so an empty file
+# and a missing file both behave the same as this one. Each key also has an
+# environment override of the form SYSLOG_TRIAGE_<SECTION>_<KEY>; the
+# environment always wins over the file.
+#
+# The Jev API key is the exception: it is read from $TYPESAFE_API_KEY only and
+# is rejected if it appears here, so this file is safe to commit.
+
+[jev]
+# Per-request timeout, in seconds.
+timeout_seconds = 10.0
+# Retries for a failed request, on top of the initial attempt.
+max_retries = 3
+# Ceiling on in-flight requests, so a log burst cannot fan out without bound.
+max_concurrency = 8
+
+[journal]
+# Systemd units to follow. Empty means every unit.
+units = []
+# Highest syslog priority to keep, 0 (emerg) through 7 (debug). The default
+# drops debug entries, which are rarely worth asking a model about.
+max_priority = 6
+# Optional journalctl-style start point, e.g. "-1h". Commented out means tail
+# from now.
+# since = "-1h"
+# Where the journal cursor is persisted, so a restart resumes in place rather
+# than replaying or skipping entries.
+cursor_path = "var/cursor"
+
+[thresholds]
+# The answer says what an event is; confidence says whether to act on it.
+# Defaults are cautious on purpose: the daemon would rather wake a human than
+# drop something it half-understood.
+
+# Any question answered below this confidence escalates, whatever it said.
+min_confidence = 0.75
+# Confidence required before an event is dropped as routine noise. Higher than
+# min_confidence because dropping is the one decision nobody reviews.
+noise_confidence = 0.90
+# Severity score at or above which an event alerts rather than being recorded.
+alert_severity = 0.60
+
+[sinks.stdout]
+# JSON per line to stdout. On by default so the daemon is never silent.
+enabled = true
+
+[sinks.slack]
+# Alerts and escalations to a Slack webhook. Set the URL through
+# $SYSLOG_TRIAGE_SINKS_SLACK_WEBHOOK_URL rather than committing it here.
+enabled = false
+# webhook_url = "https://hooks.slack.com/services/..."
+
+[sinks.sqlite]
+# Every event and decision, kept for later review.
+enabled = false
+path = "var/decisions.db"
